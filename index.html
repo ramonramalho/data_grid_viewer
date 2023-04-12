@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Grid View</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        p {
+            margin-top: 16px;
+        }
+
+        body {
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <label for="data">Dados em JSON:</label>
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+        <textarea id="data" style="width: 500px; height: 200px;"></textarea>
+        <button id="convert">Converter</button>
+    </div>
+    <div id="grid"></div>
+
+    <script>
+        const convertButton = document.getElementById("convert");
+        const dataInput = document.getElementById("data");
+        const gridOutput = document.getElementById("grid");
+
+        function flattenObject(obj, prefix = "") {
+            return Object.keys(obj).reduce((acc, key) => {
+                const pre = prefix.length ? prefix + "." : "";
+                if (typeof obj[key] === "object" && obj[key] !== null) {
+                    Object.assign(acc, flattenObject(obj[key], pre + key));
+                } else {
+                    acc[pre + key] = {
+                        value: obj[key],
+                        type: obj[key] === null ? 'undefined' : typeof obj[key]
+                    };
+                }
+                return acc;
+            }, {});
+        }
+
+        convertButton.addEventListener("click", () => {
+            const data = JSON.parse(dataInput.value);
+            const flatData = flattenObject(data);
+            const rows = Object.keys(flatData).map((key) => {
+                return `<tr><td>${key}</td><td>${flatData[key].value}</td><td>${flatData[key].type}</td></tr>`;
+            });
+            const table = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Atributo</th>
+                  <th>Valor</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.join("")}
+              </tbody>
+            </table>
+          `;
+            gridOutput.innerHTML = table;
+        });
+    </script>
+
+
+</body>
+
+</html>
